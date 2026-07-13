@@ -1,0 +1,62 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 깃헙 레포 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: 2. JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: 3. .env 파일 생성
+        env:
+          ENV_FILE: ${{ secrets.ENV }}
+        run: printf '%s' "$ENV_FILE" > .env
+
+      - name: 4. gradlew 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: 5. 빌드
+        run: ./gradlew clean build -x test
+
+      - name: 6. jar 파일명 변경
+        run: mv ./build/libs/*SNAPSHOT.jar ./koning.jar
+
+      - name: 7. jar과 .env를 EC2로 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "koning.jar,.env"
+          target: /home/ubuntu/koning/tobe
+
+      - name: 8. EC2 접속해서 배포
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            sudo rm -rf /home/ubuntu/koning/current
+            mkdir -p /home/ubuntu/koning/current
+            mv /home/ubuntu/koning/tobe/koning.jar /home/ubuntu/koning/current/koning.jar
+            mv /home/ubuntu/koning/tobe/.env /home/ubuntu/koning/current/.env
+            cd /home/ubuntu/koning/current
+            chmod 600 .env
+            sudo fuser -k -n tcp 8080 || true
+            sudo SPRING_PROFILES_ACTIVE=prod nohup java -jar koning.jar > ./output.log 2>&1 &
+            rm -rf /home/ubuntu/koning/tobe

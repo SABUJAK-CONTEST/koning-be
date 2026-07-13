@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: contest
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight([%-3level]) %cyan(%logger{5}) - %msg%n"
+
