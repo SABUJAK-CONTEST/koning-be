@@ -2,6 +2,8 @@ package com.sabujak.contest.domain.user.repository;
 
 import com.sabujak.contest.domain.user.entity.User;
 import com.sabujak.contest.domain.user.entity.UserRowMapper;
+import com.sabujak.contest.global.exception.ErrorCode;
+import com.sabujak.contest.global.exception.SaveFailedException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,9 +20,39 @@ public class UserRepository {
     this.jdbcTemplate = jdbcTemplate;
   }
 
+  public User save(User user) {
+    String saveSql = "insert into user (name, uuid, email, role, provider, provider_id, created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?)";
+    jdbcTemplate.update(saveSql, user.getName(), user.getUuid(), user.getEmail(), user.getRole(), user.getProvider(), user.getProviderId(), user.getCreatedAt(), user.getUpdatedAt());
+
+    String responseSql = "select * from user where uuid = ?";
+    User response = jdbcTemplate.query(responseSql, userRowMapper, user.getUuid())
+        .stream()
+        .findFirst()
+        .orElseThrow(
+            () -> new SaveFailedException(ErrorCode.SAVE_FAILED_EXCEPTION)
+        );
+
+    return response;
+
+  }
+
   public Optional<User> findById(Long id) {
     String sql = "select * from user where id = ?";
     return jdbcTemplate.query(sql, userRowMapper, id)
+        .stream()
+        .findFirst();
+  }
+
+  public Optional<User> findByUuid(String uuid) {
+    String sql = "select * from user where uuid = ?";
+    return jdbcTemplate.query(sql, userRowMapper, uuid)
+        .stream()
+        .findFirst();
+  }
+
+  public Optional<User> findByProviderId(String providerId) {
+    String sql = "select * from user where provider_id = ?";
+    return jdbcTemplate.query(sql, userRowMapper, providerId)
         .stream()
         .findFirst();
   }

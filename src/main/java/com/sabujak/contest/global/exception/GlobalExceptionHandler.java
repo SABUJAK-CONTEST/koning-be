@@ -13,6 +13,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+  @ExceptionHandler(SaveFailedException.class)
+  public ResponseEntity<ResponseDTO> saveFailedException(SaveFailedException e) {
+    log.error("db저장에 실패했습니다.", e);
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ResponseDTO.of(ErrorCode.SAVE_FAILED_EXCEPTION));
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ResponseDTO> handleException(Exception e) {
     log.error("처리되지 않은 예외 발생", e);

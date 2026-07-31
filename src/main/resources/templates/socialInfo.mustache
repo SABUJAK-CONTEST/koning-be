@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth2</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Pretendard,Arial,sans-serif;
+    }
+
+    body{
+      background:#f5f7fb;
+      color:#333;
+      padding:40px;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:12px;
+      padding:24px;
+      margin-bottom:24px;
+      box-shadow:0 4px 20px rgba(0,0,0,.08);
+    }
+
+    h2{
+      margin-bottom:18px;
+    }
+
+    .flex{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:none;
+      border-radius:8px;
+      padding:12px 20px;
+      font-size:15px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .google{
+      background:#EA4335;
+      color:#fff;
+    }
+
+    .kakao{
+      background:#FEE500;
+      color:#111;
+    }
+
+    .naver{
+      background:#03C75A;
+      color:#fff;
+    }
+
+    .info{
+      margin-top:20px;
+      background:#eef5ff;
+      border-left:5px solid #2563eb;
+      padding:18px;
+      line-height:1.8;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    td{
+      border-bottom:1px solid #eee;
+      padding:12px;
+      vertical-align:top;
+    }
+
+    .label{
+      width:180px;
+      background:#fafafa;
+      font-weight:bold;
+    }
+
+    pre{
+      background:#111827;
+      color:#6ee7b7;
+      padding:16px;
+      border-radius:8px;
+      overflow:auto;
+      font-size:13px;
+      white-space:pre-wrap;
+      word-break:break-all;
+    }
+
+    .empty{
+      color:#999;
+      font-size:15px;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h2>소셜 로그인 테스트</h2>
+
+    <div class="flex">
+      <button class="google" onclick="login('google')">Google 로그인</button>
+      <button class="kakao" onclick="login('kakao')">Kakao 로그인</button>
+      <button class="naver" onclick="login('naver')">Naver 로그인</button>
+    </div>
+
+    <div class="info">
+
+      <b>OAuth2 Endpoint</b>
+
+      <pre>/oauth2/authorization/google
+/oauth2/authorization/kakao
+/oauth2/authorization/naver</pre>
+
+      redirectUri를 지정할 수 있습니다.
+
+      <pre>/oauth2/authorization/google?redirectUri=https://www.koning.kr/main...</pre>
+
+      로그인 완료 후 페이지가 redirectUri로 자동 이동합니다.
+
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h2>Access Token</h2>
+    <div id="accessResult" class="empty">토큰 없음</div>
+  </div>
+
+  <div class="card">
+    <h2>Refresh Token</h2>
+    <div id="refreshResult" class="empty">토큰 없음</div>
+  </div>
+
+</div>
+
+<script>
+
+  function login(provider){
+
+    const redirect = window.location.origin + window.location.pathname;
+
+    location.href =
+        "/oauth2/authorization/" +
+        provider +
+        "?redirectUri=" +
+        encodeURIComponent(redirect);
+
+  }
+
+  function parseUrl(){
+
+    const url = new URL(window.location.href);
+
+    const access = url.searchParams.get("accessToken");
+    const refresh = url.searchParams.get("refreshToken");
+
+    show(access, "accessResult");
+    show(refresh, "refreshResult");
+
+  }
+
+  function show(token, id){
+
+    const target = document.getElementById(id);
+
+    if(!token){
+      target.innerHTML = "<span class='empty'>토큰 없음</span>";
+      return;
+    }
+
+    const parts = token.split(".");
+
+    if(parts.length !== 3){
+      target.innerHTML = "<span class='empty'>JWT 형식이 아닙니다.</span>";
+      return;
+    }
+
+    const header = decode(parts[0]);
+    const payload = decode(parts[1]);
+
+    target.innerHTML = `
+<table>
+
+<tr>
+<td class="label">Raw Token</td>
+<td style="word-break:break-all;">${token}</td>
+</tr>
+
+<tr>
+<td class="label">Header</td>
+<td><pre>${JSON.stringify(header,null,2)}</pre></td>
+</tr>
+
+<tr>
+<td class="label">Payload</td>
+<td><pre>${JSON.stringify(payload,null,2)}</pre></td>
+</tr>
+
+<tr>
+<td class="label">Algorithm</td>
+<td>${header.alg}</td>
+</tr>
+
+<tr>
+<td class="label">Type</td>
+<td>${header.typ}</td>
+</tr>
+
+<tr>
+<td class="label">Issued At</td>
+<td>${time(payload.iat)}</td>
+</tr>
+
+<tr>
+<td class="label">Expire</td>
+<td>${time(payload.exp)}</td>
+</tr>
+
+<tr>
+<td class="label">Signature</td>
+<td style="word-break:break-all;">${parts[2]}</td>
+</tr>
+
+</table>
+`;
+
+  }
+
+  function decode(str){
+
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+
+    while(str.length % 4){
+      str += "=";
+    }
+
+    return JSON.parse(atob(str));
+
+  }
+
+  function time(sec){
+
+    if(!sec) return "-";
+
+    return new Date(sec * 1000).toLocaleString();
+
+  }
+
+  parseUrl();
+
+</script>
+
+</body>
+</html>
