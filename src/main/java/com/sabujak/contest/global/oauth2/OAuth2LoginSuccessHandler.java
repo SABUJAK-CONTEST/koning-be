@@ -44,8 +44,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         //TODO: 리다이렉트 URI 검증 로직 추가해야함
 
         if(!StringUtils.hasText(redirectUri)){
-            //redirectUri = "https://api.koning.kr/login/social-info";
-            redirectUri = "http://localhost:8080/login/social-info";
+            redirectUri = "https://api.koning.kr/login/social-info";
+            //redirectUri = "http://localhost:8080/login/social-info";
         }
 
         response.sendRedirect(redirectUri + "?accessToken=" + accessToken + "&refreshToken=" + refreshToken);
