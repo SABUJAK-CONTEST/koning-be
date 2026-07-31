@@ -127,15 +127,23 @@
 
       <b>OAuth2 Endpoint</b>
 
-      <pre>/oauth2/authorization/google
-/oauth2/authorization/kakao
-/oauth2/authorization/naver</pre>
+      <pre>https://api.koning.kr/oauth2/authorization/google
+https://api.koning.kr/oauth2/authorization/kakao
+https://api.koning.kr/oauth2/authorization/naver</pre>
 
       redirectUri를 지정할 수 있습니다.
 
-      <pre>/oauth2/authorization/google?redirectUri=https://www.koning.kr/main...</pre>
+      <pre>https://api.koning.kr/oauth2/authorization/google?redirectUri=https://google.com</pre>
 
       로그인 완료 후 페이지가 redirectUri로 자동 이동합니다.
+      <br>
+      <br>
+      파라미터로 엑세스, 리프레시 토큰이 들어옵니다.
+      <br>
+      1) ?accessToken=eyJh...
+      <br>
+      2) &refreshToken=eyJhbG
+      <br>
 
     </div>
 
