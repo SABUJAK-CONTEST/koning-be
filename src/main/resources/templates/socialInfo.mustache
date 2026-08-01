@@ -16,7 +16,7 @@
     body{
       background:#f5f7fb;
       color:#333;
-      padding:40px;
+      padding:40px 20px;
     }
 
     .container{
@@ -34,6 +34,7 @@
 
     h2{
       margin-bottom:18px;
+      font-size:20px;
     }
 
     .flex{
@@ -49,6 +50,8 @@
       font-size:15px;
       font-weight:bold;
       cursor:pointer;
+      flex:1 1 auto;
+      min-width:120px;
     }
 
     .google{
@@ -72,6 +75,7 @@
       border-left:5px solid #2563eb;
       padding:18px;
       line-height:1.8;
+      font-size:14px;
     }
 
     table{
@@ -83,6 +87,7 @@
       border-bottom:1px solid #eee;
       padding:12px;
       vertical-align:top;
+      font-size:14px;
     }
 
     .label{
@@ -107,6 +112,215 @@
       font-size:15px;
     }
 
+    /* Modal */
+    .modal-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.5);
+      z-index:1000;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      animation:fadeIn .2s ease;
+    }
+
+    .modal-overlay.show{
+      display:flex;
+    }
+
+    .modal{
+      background:#fff;
+      border-radius:16px;
+      padding:32px 28px;
+      max-width:360px;
+      width:100%;
+      text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      animation:pop .25s ease;
+    }
+
+    .modal .check{
+      width:64px;
+      height:64px;
+      background:#10b981;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 16px;
+      color:#fff;
+      font-size:36px;
+      font-weight:bold;
+    }
+
+    .modal h3{
+      font-size:22px;
+      margin-bottom:10px;
+      color:#111;
+    }
+
+    .modal p{
+      color:#666;
+      font-size:14px;
+      margin-bottom:22px;
+      line-height:1.5;
+    }
+
+    .modal button{
+      background:#2563eb;
+      color:#fff;
+      width:100%;
+      padding:12px 20px;
+      border-radius:8px;
+      font-size:15px;
+      font-weight:bold;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+
+    @keyframes pop{
+      from{transform:scale(.85);opacity:0}
+      to{transform:scale(1);opacity:1}
+    }
+
+    /* 토큰 값 표시용 공통 스타일 */
+    .token-value{
+      font-family:"SF Mono","Monaco","Consolas",monospace;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:6px;
+      padding:10px 12px;
+      font-size:12px;
+      line-height:1.6;
+      word-break:break-all;
+      color:#334155;
+    }
+
+    .token-meta{
+      display:inline-block;
+      background:#eef2ff;
+      color:#4338ca;
+      padding:4px 10px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width:768px){
+      body{
+        padding:16px 12px;
+      }
+
+      .card{
+        padding:18px 16px;
+        margin-bottom:16px;
+        border-radius:10px;
+      }
+
+      h2{
+        font-size:18px;
+        margin-bottom:14px;
+      }
+
+      button{
+        padding:14px 16px;
+        font-size:14px;
+        flex:1 1 100%;
+      }
+
+      .info{
+        padding:14px;
+        font-size:13px;
+        line-height:1.7;
+      }
+
+      pre{
+        font-size:12px;
+        padding:12px;
+      }
+
+      /* 테이블을 세로 카드형으로 변환 */
+      table, tbody, tr, td{
+        display:block;
+        width:100%;
+      }
+
+      tr{
+        border-bottom:none;
+        padding:0;
+        margin-bottom:16px;
+      }
+
+      tr:last-child{
+        margin-bottom:0;
+      }
+
+      td{
+        border-bottom:none;
+        padding:0;
+        font-size:13px;
+      }
+
+      td.label{
+        width:100%;
+        background:transparent;
+        padding:0 0 6px;
+        color:#6366f1;
+        font-size:11px;
+        font-weight:700;
+        text-transform:uppercase;
+        letter-spacing:.8px;
+      }
+
+      /* 토큰 값들 모바일에서 더 잘 보이도록 */
+      .token-value{
+        font-size:11.5px;
+        padding:10px;
+        line-height:1.5;
+        max-height:180px;
+        overflow-y:auto;
+      }
+
+      .token-meta{
+        font-size:12px;
+        padding:3px 10px;
+      }
+
+      td pre{
+        font-size:11.5px;
+        padding:12px;
+        line-height:1.6;
+        max-height:280px;
+        overflow:auto;
+      }
+    }
+
+    @media (max-width:480px){
+      body{
+        padding:12px 8px;
+      }
+
+      .card{
+        padding:16px 12px;
+      }
+
+      h2{
+        font-size:17px;
+      }
+
+      .modal{
+        padding:28px 20px;
+      }
+
+      .modal h3{
+        font-size:20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -161,6 +375,16 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
 
 </div>
 
+<!-- 로그인 성공 모달 -->
+<div class="modal-overlay" id="successModal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="check">✓</div>
+    <h3>로그인 성공!</h3>
+    <p>토큰이 정상적으로 발급되었습니다.<br>아래에서 상세 정보를 확인하세요.</p>
+    <button onclick="closeModal()">확인</button>
+  </div>
+</div>
+
 <script>
 
   function login(provider){
@@ -182,8 +406,13 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
     const access = url.searchParams.get("accessToken");
     const refresh = url.searchParams.get("refreshToken");
 
-    show(access, "accessResult");
-    show(refresh, "refreshResult");
+    const accessOk = show(access, "accessResult");
+    const refreshOk = show(refresh, "refreshResult");
+
+    // 두 토큰 모두 파싱 성공 시 = 로그인 성공
+    if(accessOk && refreshOk){
+      openModal();
+    }
 
   }
 
@@ -193,25 +422,32 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
 
     if(!token){
       target.innerHTML = "<span class='empty'>토큰 없음</span>";
-      return;
+      return false;
     }
 
     const parts = token.split(".");
 
     if(parts.length !== 3){
       target.innerHTML = "<span class='empty'>JWT 형식이 아닙니다.</span>";
-      return;
+      return false;
     }
 
-    const header = decode(parts[0]);
-    const payload = decode(parts[1]);
+    let header, payload;
+
+    try{
+      header = decode(parts[0]);
+      payload = decode(parts[1]);
+    }catch(e){
+      target.innerHTML = "<span class='empty'>토큰 파싱 실패</span>";
+      return false;
+    }
 
     target.innerHTML = `
 <table>
 
 <tr>
 <td class="label">Raw Token</td>
-<td style="word-break:break-all;">${token}</td>
+<td><div class="token-value">${token}</div></td>
 </tr>
 
 <tr>
@@ -226,12 +462,12 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
 
 <tr>
 <td class="label">Algorithm</td>
-<td>${header.alg}</td>
+<td><span class="token-meta">${header.alg}</span></td>
 </tr>
 
 <tr>
 <td class="label">Type</td>
-<td>${header.typ}</td>
+<td><span class="token-meta">${header.typ}</span></td>
 </tr>
 
 <tr>
@@ -246,11 +482,13 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
 
 <tr>
 <td class="label">Signature</td>
-<td style="word-break:break-all;">${parts[2]}</td>
+<td><div class="token-value">${parts[2]}</div></td>
 </tr>
 
 </table>
 `;
+
+    return true;
 
   }
 
@@ -272,6 +510,15 @@ https://api.koning.kr/oauth2/authorization/naver</pre>
 
     return new Date(sec * 1000).toLocaleString();
 
+  }
+
+  function openModal(){
+    document.getElementById("successModal").classList.add("show");
+  }
+
+  function closeModal(e){
+    if(e && e.target !== e.currentTarget) return;
+    document.getElementById("successModal").classList.remove("show");
   }
 
   parseUrl();
